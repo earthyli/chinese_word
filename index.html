@@ -26,10 +26,6 @@
     background-color: #4CAF50;
     color: white;
   }
-  #stopBtn {
-    background-color: #f44336;
-    color: white;
-  }
   #nextBtn {
     background-color: #2196F3;
     color: white;
@@ -48,15 +44,32 @@
     margin-top: 10px;
     color: #333;
   }
+  #instructions {
+    margin-top: 20px;
+    font-size: 20px;
+    color: #444;
+    background-color: #fff3cd;
+    padding: 15px;
+    border-radius: 8px;
+    display: inline-block;
+    text-align: left;
+  }
 </style>
 </head>
 <body>
 
-<h1>Cantonese Pronunciation Checker - Two Words</h1>
+<h1>廣東話發音練習 - 雙字詞</h1>
 <div id="word">學校</div>
-<button id="startBtn">🎤 Start</button>
-<button id="stopBtn">🛑 Stop</button>
-<button id="nextBtn">➡ Next</button>
+<button id="startBtn">🎤 開始錄音</button>
+<button id="nextBtn">➡ 下一題</button>
+
+<div id="instructions">
+  <b>使用方法：</b><br>
+  1. 按「開始錄音」後，清楚讀出上面顯示嘅中文詞語（廣東話發音）。<br>
+  2. 系統會檢查你嘅讀音，正確會顯示 ✅ ，錯誤會播放正確讀音。<br>
+  3. 按「下一題」換另一個詞語繼續練習。
+</div>
+
 <div id="feedback"></div>
 <div id="status"></div>
 <div id="transcript"></div>
@@ -82,7 +95,7 @@ document.getElementById("nextBtn").addEventListener("click", randomWord);
 
 document.getElementById("startBtn").addEventListener("click", () => {
   if (!('webkitSpeechRecognition' in window)) {
-    alert("Your browser does not support speech recognition.");
+    alert("你的瀏覽器唔支援語音識別功能。");
     return;
   }
 
@@ -90,9 +103,9 @@ document.getElementById("startBtn").addEventListener("click", () => {
   recognition.lang = "zh-HK"; // Cantonese (Hong Kong)
   recognition.interimResults = false;
   recognition.maxAlternatives = 1;
-  recognition.continuous = true; // Keep listening
+  recognition.continuous = false; // stop automatically after result
 
-  statusDiv.textContent = "🎙 Listening...";
+  statusDiv.textContent = "🎙 正在錄音...";
   feedback.textContent = "";
   transcriptDiv.textContent = "";
 
@@ -100,9 +113,8 @@ document.getElementById("startBtn").addEventListener("click", () => {
 
   recognition.onresult = (event) => {
     const transcript = event.results[event.results.length - 1][0].transcript.trim();
-    transcriptDiv.textContent = `You said: ${transcript}`;
+    transcriptDiv.textContent = `你講咗: ${transcript}`;
 
-    // Accept exact match or match first two characters
     if (transcript === currentWord || transcript.startsWith(currentWord.slice(0,2))) {
       feedback.textContent = "✅";
       speak("正確！");
@@ -113,18 +125,12 @@ document.getElementById("startBtn").addEventListener("click", () => {
   };
 
   recognition.onerror = (event) => {
-    statusDiv.textContent = "⚠ Error: " + event.error;
+    statusDiv.textContent = "⚠ 錯誤: " + event.error;
   };
 
   recognition.onend = () => {
-    statusDiv.textContent = "🛑 Recording stopped";
+    statusDiv.textContent = "🛑 錄音已停止";
   };
-});
-
-document.getElementById("stopBtn").addEventListener("click", () => {
-  if (recognition) {
-    recognition.stop();
-  }
 });
 
 function speak(text) {
