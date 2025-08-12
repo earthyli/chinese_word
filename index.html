@@ -2,7 +2,7 @@
 <html lang="zh-HK">
 <head>
 <meta charset="UTF-8">
-<title>Cantonese Pronunciation Checker</title>
+<title>Cantonese Pronunciation Checker - Two Words</title>
 <style>
   body {
     font-family: Arial, sans-serif;
@@ -11,7 +11,7 @@
     background: #f9f9f9;
   }
   #word {
-    font-size: 80px;
+    font-size: 60px;
     margin: 20px;
   }
   button {
@@ -52,8 +52,8 @@
 </head>
 <body>
 
-<h1>Cantonese Pronunciation Checker</h1>
-<div id="word">學</div>
+<h1>Cantonese Pronunciation Checker - Two Words</h1>
+<div id="word">學校</div>
 <button id="startBtn">🎤 Start</button>
 <button id="stopBtn">🛑 Stop</button>
 <button id="nextBtn">➡ Next</button>
@@ -62,7 +62,7 @@
 <div id="transcript"></div>
 
 <script>
-const words = ["學", "食", "喝", "書", "水"];
+const words = ["學校", "食飯", "喝水", "寫字", "買嘢", "聽書", "跑步", "睡覺"];
 let currentWord = "";
 let recognition;
 const feedback = document.getElementById("feedback");
@@ -102,8 +102,8 @@ document.getElementById("startBtn").addEventListener("click", () => {
     const transcript = event.results[event.results.length - 1][0].transcript.trim();
     transcriptDiv.textContent = `You said: ${transcript}`;
 
-    // Compare only first character if needed
-    if (transcript.charAt(0) === currentWord) {
+    // Accept exact match or match first two characters
+    if (transcript === currentWord || transcript.startsWith(currentWord.slice(0,2))) {
       feedback.textContent = "✅";
       speak("正確！");
     } else {
