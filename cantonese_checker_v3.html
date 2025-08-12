@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+<meta charset="UTF-8">
+<title>Cantonese Pronunciation Checker</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    padding: 30px;
+    background: #f9f9f9;
+  }
+  #word {
+    font-size: 80px;
+    margin: 20px;
+  }
+  button {
+    padding: 15px 25px;
+    font-size: 20px;
+    margin: 10px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+  }
+  #startBtn {
+    background-color: #4CAF50;
+    color: white;
+  }
+  #stopBtn {
+    background-color: #f44336;
+    color: white;
+  }
+  #nextBtn {
+    background-color: #2196F3;
+    color: white;
+  }
+  #feedback {
+    font-size: 60px;
+    margin-top: 20px;
+  }
+  #status {
+    font-size: 20px;
+    margin-top: 15px;
+    color: #555;
+  }
+  #transcript {
+    font-size: 24px;
+    margin-top: 10px;
+    color: #333;
+  }
+</style>
+</head>
+<body>
+
+<h1>Cantonese Pronunciation Checker</h1>
+<div id="word">學</div>
+<button id="startBtn">🎤 Start</button>
+<button id="stopBtn">🛑 Stop</button>
+<button id="nextBtn">➡ Next</button>
+<div id="feedback"></div>
+<div id="status"></div>
+<div id="transcript"></div>
+
+<script>
+const words = ["學", "食", "喝", "書", "水"];
+let currentWord = "";
+let recognition;
+const feedback = document.getElementById("feedback");
+const wordDiv = document.getElementById("word");
+const statusDiv = document.getElementById("status");
+const transcriptDiv = document.getElementById("transcript");
+
+function randomWord() {
+  currentWord = words[Math.floor(Math.random() * words.length)];
+  wordDiv.textContent = currentWord;
+  feedback.textContent = "";
+  transcriptDiv.textContent = "";
+  statusDiv.textContent = "";
+}
+
+document.getElementById("nextBtn").addEventListener("click", randomWord);
+
+document.getElementById("startBtn").addEventListener("click", () => {
+  if (!('webkitSpeechRecognition' in window)) {
+    alert("Your browser does not support speech recognition.");
+    return;
+  }
+
+  recognition = new webkitSpeechRecognition();
+  recognition.lang = "zh-HK"; // Cantonese (Hong Kong)
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 1;
+  recognition.continuous = true; // Keep listening
+
+  statusDiv.textContent = "🎙 Listening...";
+  feedback.textContent = "";
+  transcriptDiv.textContent = "";
+
+  recognition.start();
+
+  recognition.onresult = (event) => {
+    const transcript = event.results[event.results.length - 1][0].transcript.trim();
+    transcriptDiv.textContent = `You said: ${transcript}`;
+
+    // Compare only first character if needed
+    if (transcript.charAt(0) === currentWord) {
+      feedback.textContent = "✅";
+      speak("正確！");
+    } else {
+      feedback.textContent = "❌";
+      speak(`錯誤，正確讀法係 ${currentWord}`);
+    }
+  };
+
+  recognition.onerror = (event) => {
+    statusDiv.textContent = "⚠ Error: " + event.error;
+  };
+
+  recognition.onend = () => {
+    statusDiv.textContent = "🛑 Recording stopped";
+  };
+});
+
+document.getElementById("stopBtn").addEventListener("click", () => {
+  if (recognition) {
+    recognition.stop();
+  }
+});
+
+function speak(text) {
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = "zh-HK"; // Cantonese (Hong Kong)
+  speechSynthesis.speak(utterance);
+}
+
+// Initialize with random word
+randomWord();
+</script>
+
+</body>
+</html>
